@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تحدي تخمين الأرقام الذكي - أدم</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1a1a24;
+      color: white;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .game-container {
+      background: #252533;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      width: 360px;
+      text-align: center;
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      margin: 15px 0;
+      border: 2px solid #444;
+      border-radius: 6px;
+      background: #1a1a24;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+    }
+    .guess-btn {
+      padding: 10px 25px;
+      background-color: #f1c40f;
+      color: #1a1a24;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .guess-btn:hover {
+      background-color: #f39c12;
+    }
+    /* مكان ظهور رسائل النتيجة التفاعلية */
+    #resultBox {
+      margin-top: 20px;
+      min-height: 50px;
+    }
+    /* كلاسات النتيجة اللي الجافاسكريبت هتضيفها ديناميكياً */
+    .alert-card {
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      animation: pop 0.3s ease;
+    }
+    .success { background-color: #2ed573; color: white; }
+    .wrong { background-color: #ff4757; color: white; }
+    
+    @keyframes pop {
+      0% { transform: scale(0.8); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-container">
+    <h2>لعبة تخمين الرقم السري 🧠</h2>
+    <p>أنا اخترت رقم من 1 إلى 10، تفتكر هو كام؟</p>
+    <p style="color: #aaa; font-size: 14px;">المحاولات المتبقية: <span id="attemptsCount" style="color: #f1c40f; font-weight: bold;">3</span></p>
+    
+    <input type="number" id="userInput" min="1" max="10" placeholder="اكتب رقمك هنا">
+    <br>
+    <button class="guess-btn" id="actionBtn" onclick="checkGuess()">تخمين!</button>
+    
+    <div id="resultBox"></div>
+  </div>
+
+  <script>
+    // 1. الجافاسكريبت بتولد رقم عشوائي من 1 لـ 10 عند بداية اللعبة
+    let secretNumber = Math.floor(Math.random() * 10) + 1;
+    let attempts = 3;
+
+    function checkGuess() {
+      let userInput = document.getElementById("userInput");
+      let resultBox = document.getElementById("resultBox");
+      let attemptsCount = document.getElementById("attemptsCount");
+      let actionBtn = document.getElementById("actionBtn");
+
+      let userGuess = parseInt(userInput.value);
+
+      // حماية: التأكد من إدخال رقم صحيح
+      if (isNaN(userGuess) || userGuess < 1 || userGuess > 10) {
+        alert("من فضلك دخل رقم صح بين 1 و 10!");
+        return;
+      }
+
+      // تفريغ محتوى صندوق النتيجة القديم قبل عرض الجديد
+      resultBox.innerHTML = "";
+
+      // 2. إنشاء كارت النتيجة بالـ DOM
+      let alertCard = document.createElement("div");
+      alertCard.className = "alert-card";
+
+      // 3. مقارنة الرقم المكتوب بالرقم السري (الـ Logic)
+      if (userGuess === secretNumber) {
+        alertCard.textContent = "🏆 مبروك يا أدم! خمنت الرقم صح! 🎉";
+        alertCard.classList.add("success");
+        actionBtn.disabled = true; // قفل الزرار لأن اللعبة خلصت بالفوز
+        actionBtn.style.background = "#555";
+      } else {
+        attempts--; // تقليل المحاولات المتبقية واحدة
+        attemptsCount.textContent = attempts; // تحديث الرقم في الصفحة
+
+        if (attempts > 0) {
+          if (userGuess > secretNumber) {
+            alertCard.textContent = "❌ غلط! رقمك أكبر من الرقم السري.";
+          } else {
+            alertCard.textContent = "❌ غلط! رقمك أصغر من الرقم السري.";
+          }
+          alertCard.classList.add("wrong");
+        } else {
+          // نفاد المحاولات والخسارة
+          alertCard.textContent = `💥 خسرت! الرقم السري كان: ${secretNumber}. اعمل ريفريش وجرب تاني! 🔄`;
+          alertCard.classList.add("wrong");
+          actionBtn.disabled = true; // قفل الزرار
+          actionBtn.style.background = "#555";
+        }
+      }
+
+      // 4. تركيب كارت النتيجة في مكانها المخصص بالصفحة
+      resultBox.appendChild(alertCard);
+      userInput.value = ""; // تفريغ الخانة
+    }
+  </script>
+
+</body>
+</html>
